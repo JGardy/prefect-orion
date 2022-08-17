@@ -1,51 +1,56 @@
 import requests
 import time
 
-
 OUTPUT_ENV_FILE = './prefect.env'
 
 ORION_SERVER_URL = 'http://localhost:4200'
 GET_BLOCK_TYPES_URL = f'{ORION_SERVER_URL}/api/block_schemas/filter'
 CREATE_BLOCK_URL = f'{ORION_SERVER_URL}/api/block_documents'
 CREATE_WORK_QUEUE_URL = f'{ORION_SERVER_URL}/api/work_queues'
-SET_DEFAULT_STORAGE_URL = f'{ORION_SERVER_URL}/api/block_documents/<BLOCK_ID_HERE>/set_default_storage_block_document'
+# Note: Disabled - doesn't seem to be supported in Prefect 2.0.4
+#SET_DEFAULT_STORAGE_URL = f'{ORION_SERVER_URL}/api/block_documents/<BLOCK_ID_HERE>/set_default_storage_block_document'
 
 session = requests.Session()
 
-
-def init_storage(storage_type: str = 'File Storage', name: str = 'minio_docker'):
-    storage_type: str = 'File Storage'
-    name: str = 'minio_docker'
+def init_storage(storage_type: str = 'S3', name: str = 'minio-docker'):
+    storage_type: str = 'S3'
+    name: str = 'minio-docker'
     # get block spec id for the storage type we want
     resp = session.post(GET_BLOCK_TYPES_URL, json={})
     resp.raise_for_status()
     block_schema = [ x for x in resp.json() if x['block_type']['name'] == storage_type ]
     if not block_schema:
-        raise ValueError('<File Storage> not found')
+        raise ValueError('<S3 Storage> not found')
     block_schema = block_schema[0]
     block_type_id = block_schema['block_type_id']
     block_schema_id = block_schema['id']
 
     # create storage block
+    # Note: Moved prior creds from here, to the data section for 2.0.4
     storage_options = dict(
         use_ssl = False,
-        key = "blablabla",
-        secret = "blablabla",
         client_kwargs = dict(endpoint_url = "http://minio:9000")
     )
     payload = dict(
         name = name,
         block_type_id = block_type_id,
         block_schema_id = block_schema_id,
-        data = dict(base_path='s3://prefect-flows/', key_type="hash", options=storage_options)
+        data = dict(
+            base_path='s3://prefect-server:9000',
+            bucket_path='s3://prefect-server:9000/prefect/',
+            aws_access_key_id='blablabla',
+            aws_secret_access_key='blablabla',
+            key_type="hash",
+            options=storage_options)
     )
     resp = session.post(CREATE_BLOCK_URL, json=payload)
     resp.raise_for_status()
     block_id = resp.json()['id']
-    # set sotrage as default
-    resp = session.post(SET_DEFAULT_STORAGE_URL.replace('<BLOCK_ID_HERE>', block_id), json={})
-    resp.raise_for_status()
-    return block_id
+    # set storage as default
+    # Note: Disabled - doesn't seem to be supported in Prefect 2.0.4
+    #resp = session.post(SET_DEFAULT_STORAGE_URL.replace('<BLOCK_ID_HERE>', block_id), json={})
+    #resp.raise_for_status()
+    #return block_id
 
 
 def init_work_queue(name='docker_queue'):
