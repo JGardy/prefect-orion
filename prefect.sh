@@ -16,7 +16,7 @@ function wait_until_postgres_ready() {
     local max_iterations=40
     while [ ${iterations} -le ${max_iterations} ]; do
         set +e
-        docker-compose exec postgres bash -c 'pg_isready | grep "accepting connections"' > /dev/null 2>&1
+        docker compose exec postgres bash -c 'pg_isready | grep "accepting connections"' > /dev/null 2>&1
         local ready=$?
         set -e
         if [ ${ready} -eq 0 ]; then
@@ -35,10 +35,10 @@ function wait_until_postgres_ready() {
 
 
 function start_server() {
-    docker-compose up -d --force-recreate --no-deps postgres
+    docker compose up -d --force-recreate --no-deps postgres
     wait_until_postgres_ready
     sleep 1
-    docker-compose up -d --force-recreate --no-deps prefect-server
+    docker compose up -d --force-recreate --no-deps prefect-server
     sleep 1
 }
 
@@ -51,7 +51,7 @@ function initialize() {
     start_server
     sleep 1
     set +e
-    docker-compose exec prefect-server bash -c 'cd /flows && python ./init_orion.py'
+    docker compose exec prefect-server bash -c 'cd /flows && python ./init_orion.py'
     if [ $? -ne 0 ]; then
         echo "ERROR: prefect server failed to initialize"
         exit 1
@@ -75,21 +75,21 @@ function start() {
         start_server
         sleep 5
     fi
-    docker-compose up -d --force-recreate --no-deps minio prefect-agent
+    docker compose up -d --force-recreate --no-deps minio prefect-agent
     status
 }
 
 
 function status() {
     echo ''
-    docker-compose ps
+    docker compose ps
     echo ''
 }
 
 
 function stop() {
     echo ''
-    docker-compose down
+    docker compose down
     echo ''
 }
 
