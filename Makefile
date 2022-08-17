@@ -19,4 +19,4 @@ docker:
 
 .PHONY: register-test-flow
 register-test-flow: docker_image_cond
-	docker-compose exec prefect-server /bin/bash -c 'prefect deployment create /flows/test_flow.py'
+	docker compose exec prefect-server /bin/bash -c 'prefect deployment create /flows/test_flow.py'
