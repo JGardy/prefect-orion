@@ -1,5 +1,5 @@
 IMAGE_NAME := prefect-orion
-IMAGE_TAG := beta8
+IMAGE_TAG := sha-39db6fb-python3.10
 IMAGE := ${IMAGE_NAME}:${IMAGE_TAG}
 IMAGE_HASH := $(shell command docker images -q ${IMAGE} 2> /dev/null)
 

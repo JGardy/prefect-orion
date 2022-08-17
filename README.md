@@ -31,6 +31,9 @@ and Minio for flow storage
 
 + Give the start command a few seconds, specially the first time since postgres
   and prefect need to be initialized
++ Open the [MinIO Console](http://prefect-server:9001) in your browser and
+  verify it's up and running. If so, create a private bucket named `prefect` to
+  be referenced by the storage block created by the initialization script.
 + Open [Prefect UI](http://prefect-server:4200) in your browser and verify that
   it's up and running
 + Deploy test flow

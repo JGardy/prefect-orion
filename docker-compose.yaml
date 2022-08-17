@@ -4,7 +4,6 @@ networks:
   prefect:
     name: prefect
 
-
 services:
   # --------------------------------------#
   #               Postgres                #
@@ -26,18 +25,18 @@ services:
       test: pg_isready -q -d $${POSTGRES_DB} -U $${POSTGRES_USER} | grep "accepting connections" || exit 1
       timeout: 2s
     ports:
-    - published: 5433
-      target: 5432
+    - 15432:5432
     restart: on-failure
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
     networks:
       - prefect
+
   # --------------------------------------#
   #             Prefect Server            #
   # --------------------------------------#
   prefect-server:
-    image: prefect-orion:beta8
+    image: prefect-orion:sha-39db6fb-python3.10
     command:
       - prefect
       - orion
@@ -58,11 +57,12 @@ services:
       PREFECT_API_URL: http://prefect-server:4200/api
     networks:
       - prefect
+
   # --------------------------------------#
-  #             Docker Agent              #
+  #         Prefect Docker Agent          #
   # --------------------------------------#
   prefect-agent:
-    image: prefect-orion:beta8
+    image: prefect-orion:beta8sha-39db6fb-python3.10
     command:
       - prefect
       - agent
@@ -92,9 +92,7 @@ services:
       - ./volumes/minio:/data
     command: server /data --console-address :9001
     ports:
-      - published: 9000
-        target: 9000
-      - published: 9001
-        target: 9001
+      - 9000:9000
+      - 9001:9001
     networks:
       - prefect

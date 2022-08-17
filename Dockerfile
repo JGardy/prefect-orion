@@ -1,4 +1,4 @@
-FROM prefecthq/prefect:2.0b8-python3.8
+FROM prefecthq/prefect:sha-39db6fb-python3.10
 
 RUN apt update && \
     apt install -y vim && \
