@@ -97,6 +97,8 @@ function stop() {
 function reset() {
     echo 'deleting ALL prefect data'
     rm -rf volumes
+    rm -f .env
+    rm -f flows/prefect.env
     echo 'done!'
 }
 
