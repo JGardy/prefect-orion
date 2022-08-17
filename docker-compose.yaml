@@ -62,7 +62,7 @@ services:
   #         Prefect Docker Agent          #
   # --------------------------------------#
   prefect-agent:
-    image: prefect-orion:beta8sha-39db6fb-python3.10
+    image: prefect-orion:sha-39db6fb-python3.10
     command:
       - prefect
       - agent
